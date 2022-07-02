@@ -4,10 +4,10 @@ import pygame
 import sys
 import math
 
-BLUE = (0,0,255)
-BLACK = (0,0,0)
-RED = (255,0,0)
-YELLOW = (255,255,0)
+BLUE =(82, 82, 122)
+BLACK = (41, 41, 61)
+RED = (179, 60, 0)
+YELLOW = (179, 179, 0)
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -120,6 +120,38 @@ def score_position(board, piece):
 def is_terminal_node(board):
 	return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
 
+def MAXVALUE(state, alpha, beta, depth):
+	value = -math.inf
+	column = random.choice(state)
+	for col in state:
+		row = get_next_open_row(board, col)
+		b_copy = board.copy()
+		drop_piece(b_copy, row, col, AI_PIECE)
+		new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
+		if new_score > value:
+			value = new_score
+			column = col
+		alpha = max(alpha, value)
+		if alpha >= beta:
+			break
+	return column, value
+
+def MINVALUE(state, alpha, beta, depth):
+	value = math.inf
+	column = random.choice(state)
+	for col in state:
+		row = get_next_open_row(board, col)
+		b_copy = board.copy()
+		drop_piece(b_copy, row, col, PLAYER_PIECE)
+		new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
+		if new_score < value:
+			value = new_score
+			column = col
+		beta = min(beta, value)
+		if alpha >= beta:
+			break
+	return column, value
+
 def minimax(board, depth, alpha, beta, maximizingPlayer):
 	valid_locations = get_valid_locations(board)
 	is_terminal = is_terminal_node(board)
@@ -134,36 +166,10 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 		else: # Depth is zero
 			return (None, score_position(board, AI_PIECE))
 	if maximizingPlayer:
-		value = -math.inf
-		column = random.choice(valid_locations)
-		for col in valid_locations:
-			row = get_next_open_row(board, col)
-			b_copy = board.copy()
-			drop_piece(b_copy, row, col, AI_PIECE)
-			new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
-			if new_score > value:
-				value = new_score
-				column = col
-			alpha = max(alpha, value)
-			if alpha >= beta:
-				break
-		return column, value
+		return MAXVALUE(valid_locations, alpha, beta, depth)
 
 	else: # Minimizing player
-		value = math.inf
-		column = random.choice(valid_locations)
-		for col in valid_locations:
-			row = get_next_open_row(board, col)
-			b_copy = board.copy()
-			drop_piece(b_copy, row, col, PLAYER_PIECE)
-			new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
-			if new_score < value:
-				value = new_score
-				column = col
-			beta = min(beta, value)
-			if alpha >= beta:
-				break
-		return column, value
+		return MINVALUE(valid_locations, alpha, beta, depth)
 
 def get_valid_locations(board):
 	valid_locations = []
