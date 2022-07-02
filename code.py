@@ -1,3 +1,7 @@
+#Group Project
+#Afnan Alauddin Mumu(201914047)
+#Nawreen Anan Khandaker(201914006)
+
 import numpy as np
 import random
 import pygame
